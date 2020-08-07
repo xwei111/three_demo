@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>正交相机</title>
+        <title>透视相机</title>
         <style>
             * {
                 margin: 0;
@@ -27,8 +27,8 @@
             return renderer
         }
 
-        const createCamera = (left, right, top, bottom, near, far, x, y, z) => {
-            const camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far)
+        const createCamera = (fov, aspect, near, far, x, y, z) => {
+            const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
             camera.position.set(x, y, z)
             return camera
         }
@@ -39,47 +39,47 @@
         const mesh = new THREE.Mesh(geometry, material)
         scene.add(mesh)
 
-        // 宽高比相等
+        // normal
         const renderer1 = createRenderer();
-        const camera1 = createCamera(4, -4, -3, 3, 0.1, 1000, 0, 0, 5)
+        const camera1 = createCamera(45, 4 / 3, 0.1, 1000, 0, 0, 5)
         renderer1.render(scene, camera1)
 
-        // 相机移远
+        // 视角变大
         const renderer2 = createRenderer();
-        const camera2 = createCamera(4, -4, -3, 3, 0.1, 1000, 0, 0, 20)
+        const camera2 = createCamera(90, 4 / 3, 0.1, 1000, 0, 0, 5)
         renderer2.render(scene, camera2)
 
-        // 缩小left、right
+        // 改变纵横比
         const renderer3 = createRenderer();
-        const camera3 = createCamera(2, -2, -3, 3, 0.1, 1000, 0, 0, 5)
+        const camera3 = createCamera(45, 8 / 3, 0.1, 1000, 0, 0, 5)
         renderer3.render(scene, camera3)
 
-        // 缩小top、bottom
+        // z轴距离变远
         const renderer4 = createRenderer();
-        const camera4 = createCamera(4, -4, -1.5, 1.5, 0.1, 1000, 0, 0, 5)
+        const camera4 = createCamera(45, 4 / 3, 0.1, 1000, 0, 0, 10)
         renderer4.render(scene, camera4)
 
-        // 移动相机位置
+        // 改变相机位置
         const renderer5 = createRenderer();
-        const camera5 = createCamera(4, -4, -3, 3, 0.1, 1000, 1, 1, 5)
+        const camera5 = createCamera(45, 4 / 3, 0.1, 1000, 3, 3, 3)
+        camera5.lookAt(new THREE.Vector3(0, 0, 0))
         renderer5.render(scene, camera5)
 
-        // 切换相机观察角度
+        // 动画
         const renderer6 = createRenderer();
-        const camera6 = createCamera(4, -4, -3, 3, 0.1, 1000, 1, 1, 5)
-        camera6.lookAt(new THREE.Vector3(0, 0, 0))
-        renderer6.render(scene, camera6)
-
-        // 物体旋转
-        const renderer7 = createRenderer();
-        const camera7 = createCamera(4, -4, -3, 3, 0.1, 1000, 0, 0, 5)
+        const camera6 = createCamera(45, 4 / 3, 0.1, 1000, 0, 0, 3)
+        mesh.rotation.x = 45
+        mesh.rotation.y = 45
+        let v = -0.05
         function animate() {
-            mesh.rotation.x += 0.01
-            mesh.rotation.y += 0.01
-            renderer7.render(scene, camera7)
+            mesh.position.z += v
+            if(mesh.position.z < -1 || mesh.position.z > 1) {
+                v = v * -1
+            }
+            renderer6.render(scene, camera6)
             requestAnimationFrame(animate)
         }
         animate()
-
+        
     </script>
 </html>
