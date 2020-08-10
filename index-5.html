@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>阴影</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+</body>
+<script src="./three.min.js"></script>
+<script>
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(400, 300)
+    renderer.setClearColor(0x000000)
+    renderer.shadowMap.enabled = true;
+    document.body.appendChild(renderer.domElement)
+
+    const camera = new THREE.PerspectiveCamera(45, 4 / 3, 0.1, 1000)
+    camera.position.set(1, -4, 10)
+    camera.lookAt(new THREE.Vector3(0, 0, 0))
+
+    const scene = new THREE.Scene();
+    // plane
+    const planeGeometry = new THREE.PlaneGeometry(10, 9);
+    const planeMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial)
+    planeMesh.receiveShadow = true
+    scene.add(planeMesh)
+
+    // sphere
+    const sphereGeometry = new THREE.SphereGeometry(1, 36, 12)
+    const sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    sphereMesh.position.z = 1.5
+    sphereMesh.castShadow = true
+    scene.add(sphereMesh)
+
+
+    // light
+    const light = new THREE.SpotLight(0xffffff, 2);
+    light.position.set(10, 2, 5)
+    // light.target = sphereMesh
+    light.castShadow = true
+    scene.add(light)
+
+    renderer.render(scene, camera)
+
+    var alpha = 0;
+    function animate() {
+        alpha += 0.01;
+        if (alpha > Math.PI * 2) {
+            alpha -= Math.PI * 2;
+        }
+        light.position.set(2 * Math.cos(alpha), 2 * Math.sin(alpha), 3);
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+    }
+
+    animate()
+
+    document.body.appendChild(renderer.domElement)
+
+</script>
+
+</html>
