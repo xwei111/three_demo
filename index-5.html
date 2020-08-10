@@ -56,6 +56,10 @@
     light.castShadow = true
     scene.add(light)
 
+    // 阴影调试工具
+    var helper = new THREE.CameraHelper(light.shadow.camera);
+    scene.add(helper);
+
     renderer.render(scene, camera)
 
     var alpha = 0;

@@ -60,6 +60,8 @@
     const phongMaterial2 = new THREE.MeshPhongMaterial({ color: '#f00', specular: '#ff0', shininess: 1 })
     // 法向材质
     const noramlMaterial = new THREE.MeshNormalMaterial()
+    // 纹理
+    const textureLoader = new THREE.TextureLoader();
 
     // 环境光  
     const ambientLight = new THREE.AmbientLight(0xffffff)
@@ -126,6 +128,30 @@
     renderer13.render(scene13, camera)
 
 
+    // ------------------------------------纹理-----------------------------------
+    const r = new THREE.WebGLRenderer();
+    const s = new THREE.Scene();
+    const c = new THREE.PerspectiveCamera(45, 4 / 3, 0.1, 1000)
+    c.position.set(0, 0, 5)
+
+    const p = new THREE.SphereGeometry(1, 36, 12);
+    const t = textureLoader.load('./assets/img/timg.jpg');
+    const m = new THREE.MeshBasicMaterial({ map: t })
+    m.side = THREE.DoubleSide;
+    const e = new THREE.Mesh(p, m)
+    s.add(e)
+
+    r.setSize(400, 300)
+    r.setClearColor('#000')
+    r.render(s, c)
+    function animate1() {
+        e.rotation.y += 0.01
+        r.render(s, c)
+        requestAnimationFrame(animate1)
+    }
+    animate1()
+    document.body.appendChild(r.domElement)
+
 
     // -------------------------------------聚光灯------------------------------
     const renderer14 = createRenderer();
@@ -170,7 +196,6 @@
     animate()
 
     document.body.appendChild(renderer14.domElement)
-
 
 </script>
 
