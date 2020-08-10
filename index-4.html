@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>材质 + 灯光</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+</body>
+<script src="./three.min.js"></script>
+<script>
+    const createRenderer = () => {
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(400, 300)
+        renderer.setClearColor(0x000000)
+        document.body.appendChild(renderer.domElement)
+        return renderer
+    }
+
+    const createCamera = (fov, aspect, near, far, x, y, z) => {
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+        camera.position.set(x, y, z)
+        return camera
+    }
+
+    const createScene = (material, light, geometry) => {
+        const scene = new THREE.Scene();
+        const mesh = new THREE.Mesh(geometry, material)
+        scene.add(mesh)
+        scene.add(light)
+        return scene
+    }
+
+    const geometry = new THREE.CubeGeometry(1, 1, 1)
+    const sphereGeometry = new THREE.SphereGeometry(1, 36, 12)
+    const camera = createCamera(45, 4 / 3, 0.1, 1000, 3, 3, 3)
+    camera.lookAt(new THREE.Vector3(0, 0, 0))
+
+    // 基本材质 
+    const basicMaterial = new THREE.MeshBasicMaterial({ color: '#f00' })
+    // Lambert材质
+    const lambertMaterial1 = new THREE.MeshLambertMaterial({ color: '#f00' })
+    const lambertMaterial2 = new THREE.MeshLambertMaterial({ ambient: '#f00' })
+    const lambertMaterial3 = new THREE.MeshLambertMaterial({ color: '#ff0', emissive: '#f00' })
+    // Phong材质
+    const phongMaterial1 = new THREE.MeshPhongMaterial({ color: '#f00' })
+    const phongMaterial2 = new THREE.MeshPhongMaterial({ color: '#f00', specular: '#ff0', shininess: 1 })
+    // 法向材质
+    const noramlMaterial = new THREE.MeshNormalMaterial()
+
+    // 环境光  
+    const ambientLight = new THREE.AmbientLight(0xffffff)
+    // 点光源
+    const pointLight = new THREE.PointLight(0xffffff, 2, 100)
+    pointLight.position.set(2, 10, 20)
+    // 平行光
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 2)
+    directionalLight.position.set(1, 4, 10)
+
+    // 基本材质 + 环境光
+    const scene1 = createScene(basicMaterial, ambientLight, geometry)
+    const renderer1 = createRenderer();
+    renderer1.render(scene1, camera)
+    // Lambert材质 + 环境光
+    const scene2 = createScene(lambertMaterial1, ambientLight, geometry)
+    const renderer2 = createRenderer();
+    renderer2.render(scene2, camera)
+    // Phong材质 + 环境光
+    const scene3 = createScene(phongMaterial1, ambientLight, geometry)
+    const renderer3 = createRenderer();
+    renderer3.render(scene3, camera)
+    // 法向材质 + 环境光
+    const scene4 = createScene(noramlMaterial, ambientLight, geometry)
+    const renderer4 = createRenderer();
+    renderer4.render(scene4, camera)
+
+    // 基本材质 + 点光源
+    const scene5 = createScene(basicMaterial, pointLight, geometry)
+    const renderer5 = createRenderer();
+    renderer5.render(scene5, camera)
+    // Lambert材质 + 点光源 不发光
+    const scene9 = createScene(lambertMaterial1, pointLight, geometry)
+    const renderer9 = createRenderer();
+    renderer9.render(scene9, camera)
+    // Lambert材质 + 点光源 自发光
+    const scene6 = createScene(lambertMaterial3, pointLight, geometry)
+    const renderer6 = createRenderer();
+    renderer6.render(scene6, camera)
+    // Phong材质 + 点光源
+    const scene7 = createScene(phongMaterial2, pointLight, sphereGeometry)
+    const renderer7 = createRenderer();
+    renderer7.render(scene7, camera)
+    // 法向材质 + 点光源
+    const scene8 = createScene(noramlMaterial, pointLight, geometry)
+    const renderer8 = createRenderer();
+    renderer8.render(scene8, camera)
+
+    // 基本材质 + 平行光
+    const scene10 = createScene(basicMaterial, directionalLight, geometry)
+    const renderer10 = createRenderer();
+    renderer10.render(scene10, camera)
+    // Lambert材质 + 平行光
+    const scene11 = createScene(lambertMaterial2, directionalLight, geometry)
+    const renderer11 = createRenderer();
+    renderer11.render(scene11, camera)
+    // Phong材质 + 平行光
+    const scene12 = createScene(phongMaterial2, directionalLight, sphereGeometry)
+    const renderer12 = createRenderer();
+    renderer12.render(scene12, camera)
+    // 法向材质 + 平行光
+    const scene13 = createScene(noramlMaterial, directionalLight, geometry)
+    const renderer13 = createRenderer();
+    renderer13.render(scene13, camera)
+
+
+
+    // -------------------------------------聚光灯------------------------------
+    const renderer14 = createRenderer();
+    const spotScene = new THREE.Scene();
+    const spotCamera = new THREE.PerspectiveCamera(45, 4 / 3, 0.1, 1000);
+    spotCamera.position.set(0, -10, 20);
+    spotCamera.lookAt(new THREE.Vector3(0, 0, 0))
+
+    // 底
+    const spotPlane = new THREE.PlaneGeometry(8, 8, 16, 16);
+    const spotMaterial = new THREE.MeshLambertMaterial({ color: '#fff' });
+    const spotPlanMesh = new THREE.Mesh(spotPlane, spotMaterial);
+    spotScene.add(spotPlanMesh)
+
+    const spotCube = new THREE.CubeGeometry(2, 2, 2);
+    const spotCubeMetrial = new THREE.MeshNormalMaterial();
+    const spotCubeMesh = new THREE.Mesh(spotCube, spotCubeMetrial);
+    spotCubeMesh.position.z = 2;
+    spotScene.add(spotCubeMesh)
+
+    const spotLight = new THREE.SpotLight(0xffffff, 2, 100, Math.PI / 6, 25)
+    spotLight.position.set(4, 4, 4)
+    spotLight.target = spotCubeMesh
+    spotScene.add(spotLight)
+
+
+    renderer14.setSize(400, 300);
+    renderer14.setClearColor('#000');
+    renderer14.render(spotScene, spotCamera)
+
+    var alpha = 0;
+    function animate() {
+        alpha += 0.01;
+        if (alpha > Math.PI * 2) {
+            alpha -= Math.PI * 2;
+        }
+        spotCubeMesh.position.set(2 * Math.cos(alpha), 2 * Math.sin(alpha), 0);
+        renderer14.render(spotScene, spotCamera);
+        requestAnimationFrame(animate);
+    }
+
+    animate()
+
+    document.body.appendChild(renderer14.domElement)
+
+
+</script>
+
+</html>
