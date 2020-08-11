@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>文字</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+</body>
+<script src="./three.min.js"></script>
+<script>
+
+    const createRenderer = () => {
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(400, 300)
+        renderer.setClearColor(0x000000)
+        document.body.appendChild(renderer.domElement)
+        return renderer
+    }
+
+    const createCamera = (fov, aspect, near, far, x, y, z) => {
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+        camera.position.set(x, y, z)
+        return camera
+    }
+
+    const renderer = createRenderer()
+    const camera = createCamera(45, 4 / 3, 0.1, 1000, 1.5, 0, 5)
+    const scene = new THREE.Scene()
+    const material = new THREE.MeshNormalMaterial();
+
+    const loader = new THREE.FontLoader();
+    let mesh;
+    let timer;
+    let speed = 0.01
+
+    loader.load('./assets/fonts/gentilis_bold.typeface.json', function (font) {
+        mesh = new THREE.Mesh(new THREE.TextGeometry('Journey', { font: font, size: 0.7, height: 1 }), material);
+        mesh.position.z = -10
+        scene.add(mesh);
+
+        function animate() {
+            speed += 0.01
+            mesh.position.z += speed;
+            if (mesh.position.z > 0) {
+                cancelAnimationFrame(timer)
+                return
+            }
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate)
+
+        }
+        
+        timer = requestAnimationFrame(animate)
+    });
+
+</script>
+
+</html>
