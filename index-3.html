@@ -90,6 +90,19 @@
         tourskMesh.position.z = 0.4
         tourskMesh.position.x = 1.5
         tourskMesh.position.y = -1.2
+        // 自定义形状
+        const selfGeometry = new THREE.Geometry();
+        selfGeometry.vertices = [
+            new THREE.Vector3(-0.5, 0, 0),
+            new THREE.Vector3(0, 0.5, 0),
+            new THREE.Vector3(0.5, 0, 0)
+        ]
+        selfGeometry.faces.push(new THREE.Face3(0, 1, 2))
+        const selfMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const selfMesh = createGeometry(scene, selfGeometry, material)
+        selfMesh.position.z = 1
+        selfMesh.position.y = -2.7
+        selfMesh.rotation.x = 10
 
         const renderer = createRenderer();
         const camera = createCamera(45, 4 / 3, 0.1, 1000, 1, -5, 5)
