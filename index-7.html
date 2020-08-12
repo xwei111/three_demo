@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>外部模型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+</body>
+<script src="./three.min.js"></script>
+<script src="./assets/js/OBJLoader.js"></script>
+<script src="./assets/js/MTLLoader.js"></script>
+<script>
+
+    const createRenderer = () => {
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(400, 300)
+        renderer.setClearColor(0x000000)
+        document.body.appendChild(renderer.domElement)
+        return renderer
+    }
+
+    const createCamera = (fov, aspect, near, far, x, y, z) => {
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+        camera.position.set(x, y, z)
+        return camera
+    }
+
+    
+
+    const camera = createCamera(45, 4 / 3, 0.1, 1000, 0, 0, 20)
+
+    const renderer1 = createRenderer()
+    const scene1 = new THREE.Scene()
+    const light1 = new THREE.PointLight(0xcccccc);
+    light1.position.set(1, 10, 15);
+    scene1.add(light1);
+
+    let mesh1;
+    const loader = new THREE.OBJLoader();
+    loader.load('./assets/models/car.obj', function (obj) {
+        obj.traverse(function (child) {
+            if (child instanceof THREE.Mesh) {
+                child.material = new THREE.MeshLambertMaterial({ color: '#ff0', emissive: '#f00' });
+                child.material.side = THREE.DoubleSide; // 双面绘制
+            }
+        });
+        mesh1 = obj
+        mesh1.position.y = -2
+        scene1.add(obj)
+    })
+
+    function animate1() {
+        if (mesh1) {
+            mesh1.rotation.y += 0.01
+            mesh1.rotation.z = 0.4
+            renderer1.render(scene1, camera);
+        }
+        requestAnimationFrame(animate1)
+    }
+
+    animate1()
+
+
+
+    // ----------------------------模型材质------------------------------------
+
+    const renderer2 = createRenderer()
+    const scene2 = new THREE.Scene()
+    const light2 = new THREE.PointLight(0xcccccc);
+    light2.position.set(1, 10, 15);
+    scene2.add(light2);
+
+    let mesh2;
+    const basePath = './assets/models/';
+    new THREE.MTLLoader()
+        .setPath(basePath)
+        .load('/car.mtl', function (materials) {
+            materials.preload();
+            new THREE.OBJLoader()
+                .setMaterials(materials)
+                .setPath(basePath)
+                .load('/car.obj', function(obj) {
+                    mesh2 = obj
+                    obj.position.y = 0;
+                    mesh2.position.y = -2
+                    mesh2.rotation.z = 0.4
+                    obj.children.length > 0 && scene2.add(obj)
+                    renderer2.render(scene2, camera)
+                })
+        })
+    
+    function animate2() {
+        if(mesh2) {
+            mesh2.rotation.y += 0.01
+            renderer2.render(scene2, camera)
+        }
+        
+        requestAnimationFrame(animate2)
+    }
+
+    animate2()
+
+</script>
+
+</html>
