@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>雾化</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            canvas {
+                margin-right: 20px;
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        
+    </body>
+    <script src="./three.min.js"></script>
+    <script>
+        const createRenderer = ()=> {
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight)
+            renderer.setClearColor(0x000000)
+            document.body.appendChild(renderer.domElement)
+            return renderer
+        }
+
+        const createCamera = (fov, aspect, near, far, x, y, z) => {
+            const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+            camera.position.set(x, y, z)
+            return camera
+        }
+
+        const createGeometry = (scene, geometry, material) => {
+            const mesh = new THREE.Mesh(geometry, material)
+            scene.add(mesh)
+            return mesh
+        }
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog('#fff', 1, 12) // 添加雾化效果
+        const basicMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        // 长方形
+        const planeGeometry = new THREE.PlaneGeometry(8, 6);
+        createGeometry(scene, planeGeometry, basicMaterial)
+        // 长方体
+        const cubeGeometry = new THREE.CubeGeometry(1, 1, 1);
+        const cubeMesh = createGeometry(scene, cubeGeometry, basicMaterial)
+        cubeMesh.position.z = 1
+        cubeMesh.position.x = -2.5
+        cubeMesh.position.y = 1
+        // 圆
+        const circleGeometry = new THREE.CircleGeometry(0.8, 20)
+        const circleMesh = createGeometry(scene, circleGeometry, basicMaterial)
+        circleMesh.position.z = 1
+        circleMesh.position.x = -0.8
+        circleMesh.position.y = 0.5
+        // 球体
+        const sphereGeometry = new THREE.SphereGeometry(0.8, 36, 12)
+        const sphereMesh = createGeometry(scene, sphereGeometry, basicMaterial)
+        sphereMesh.position.z = 1
+        sphereMesh.position.x = 0.8
+        sphereMesh.position.y = 0.8
+        // 圆柱
+        const cylinderGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1)
+        const cylinderMesh = createGeometry(scene, cylinderGeometry, basicMaterial)
+        cylinderMesh.rotation.x = 24
+        cylinderMesh.position.z = 1
+        cylinderMesh.position.x = 2.5
+        cylinderMesh.position.y = 0.6
+        // 正四面体
+        const tetrahedronGeometry = new THREE.TetrahedronGeometry(0.8)
+        const tetMesh = createGeometry(scene, tetrahedronGeometry, basicMaterial)
+        tetMesh.rotation.x = 2
+        tetMesh.position.z = 1
+        tetMesh.position.x = -1.8
+        tetMesh.position.y = -1.6
+        // 圆环面
+        const torusGeometry = new THREE.TorusGeometry(0.6, 0.2, 30, 12)
+        const tourMesh = createGeometry(scene, torusGeometry, basicMaterial)
+        tourMesh.position.z = 0.4
+        tourMesh.position.x = -0.6
+        tourMesh.position.y = -1.2
+        // 圆环结
+        const TorusKnotGeometry = new THREE.TorusKnotGeometry(0.6, 0.2, 80, 12)
+        const tourskMesh = createGeometry(scene, TorusKnotGeometry, basicMaterial)
+        tourskMesh.position.z = 0.4
+        tourskMesh.position.x = 1.5
+        tourskMesh.position.y = -1.2
+        // 自定义形状
+        const selfGeometry = new THREE.Geometry();
+        selfGeometry.vertices = [
+            new THREE.Vector3(-0.5, 0, 0),
+            new THREE.Vector3(0, 0.5, 0),
+            new THREE.Vector3(0.5, 0, 0)
+        ]
+        selfGeometry.faces.push(new THREE.Face3(0, 1, 2))
+        const selfMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const selfMesh = createGeometry(scene, selfGeometry, basicMaterial)
+        selfMesh.position.z = 1
+        selfMesh.position.y = -2.7
+        selfMesh.rotation.x = 10
+
+        const renderer = createRenderer();
+        const camera = createCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000, 1, -5, 6)
+        camera.lookAt(new THREE.Vector3(0, 0, 0))
+        renderer.render(scene, camera)
+        
+    </script>
+</html>
