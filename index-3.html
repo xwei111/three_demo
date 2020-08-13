@@ -39,6 +39,9 @@
             return mesh
         }
 
+        const camera = createCamera(45, 4 / 3, 0.1, 1000, 1, -5, 5)
+        camera.lookAt(new THREE.Vector3(0, 0, 0))
+
         const scene = new THREE.Scene();
         scene.add(new THREE.AxisHelper(1000));
         const basicMaterial = new THREE.MeshBasicMaterial({ color: 0xf7f7f7 });
@@ -104,10 +107,13 @@
         selfMesh.position.y = -2.7
         selfMesh.rotation.x = 10
 
-        const renderer = createRenderer();
-        const camera = createCamera(45, 4 / 3, 0.1, 1000, 1, -5, 5)
-        camera.lookAt(new THREE.Vector3(0, 0, 0))
-        renderer.render(scene, camera)
+        const renderer1 = createRenderer();
+        renderer1.render(scene, camera)
+
+        scene.overrideMaterial = new THREE.MeshLambertMaterial({color : 0xF39600,wireframe:true });
+        scene.add(new THREE.AmbientLight(0xffffff))
+        const renderer2 = createRenderer();
+        renderer2.render(scene, camera)
         
     </script>
 </html>
