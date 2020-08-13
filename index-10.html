@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>粒子</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+</body>
+<script src="./three.min.js"></script>
+<script>
+    const createRenderer = () => {
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        renderer.setClearColor(0x000000)
+        document.body.appendChild(renderer.domElement)
+        return renderer
+    }
+
+    const createCamera = (fov, aspect, near, far, x, y, z) => {
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+        camera.position.set(x, y, z)
+        return camera
+    }
+
+    const createPoints = (num, texture) => {
+        let geometry = new THREE.Geometry();
+        for (let i = 0; i < num; i++) {
+            let point = new THREE.Vector3();
+            point.x = THREE.Math.randFloatSpread(200);
+            point.y = THREE.Math.randFloatSpread(200);
+            point.z = THREE.Math.randFloatSpread(200);
+            geometry.vertices.push(point);
+        }
+        const material1 = new THREE.PointsMaterial({ map: texture });
+        let points = new THREE.Points(geometry, material1);
+        return points
+    }
+
+    const scene = new THREE.Scene();
+    const textureLoader = new THREE.TextureLoader();
+    const texture1 = textureLoader.load('./assets/img/snow1.png');
+    const texture2 = textureLoader.load('./assets/img/snow2.png');
+    const texture3 = textureLoader.load('./assets/img/snow3.png');
+    
+    const points1 = createPoints(5000, texture1)
+    const points2 = createPoints(5000, texture2)
+    const points3 = createPoints(5000, texture3)
+    scene.add(points1);
+    scene.add(points2);
+    scene.add(points3);
+
+    // normal
+    const renderer = createRenderer();
+    document.body.appendChild(renderer.domElement)
+    const camera = createCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000, 0, 0, 10)
+    camera.lookAt(new THREE.Vector3(0, 0, 0))
+    renderer.render(scene, camera)
+
+    function animate() {
+        drop(points1)
+        drop(points2)
+        drop(points3)
+        renderer.render(scene, camera)
+        requestAnimationFrame(animate)
+    }
+
+    function drop(points) {
+        points.geometry.vertices.map(e=>{
+            e.y -= 0.07
+            if(e.y <= -100) {
+                e.y = 100
+            }
+        })
+        points.geometry.verticesNeedUpdate = true;
+    }
+
+    animate()
+</script>
+
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>粒子</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+</body>
+<script src="./three.min.js"></script>
+<script>
+    const createRenderer = () => {
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        renderer.setClearColor(0x000000)
+        document.body.appendChild(renderer.domElement)
+        return renderer
+    }
+
+    const createCamera = (fov, aspect, near, far, x, y, z) => {
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+        camera.position.set(x, y, z)
+        return camera
+    }
+
+    const renderer = createRenderer();
+    document.body.appendChild(renderer.domElement)
+    const camera = createCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000, 0, 0, 10)
+    camera.lookAt(new THREE.Vector3(0, 0, 0))
+
+    const scene = new THREE.Scene();
+    const sphereGeometry = new THREE.SphereGeometry(0.8, 12, 8)
+    const pointsMaterial = new THREE.PointsMaterial({ color: '#fff', size: 0.3 });
+    const points = new THREE.Points(sphereGeometry, pointsMaterial);
+    scene.add(points);
+
+    renderer.render(scene, camera)
+
+    function animate() {
+        points.rotation.x += 0.01
+        renderer.render(scene, camera)
+        requestAnimationFrame(animate)
+    }
+
+    animate()
+</script>
+
+</html>
