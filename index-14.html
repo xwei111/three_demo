@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>轨道控制器-全景</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            canvas {
+                margin-right: 20px;
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        
+    </body>
+    <script src="./three.min.js"></script>
+    <script src="./assets/js/OrbitControls.js"></script>
+    <script>
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        renderer.setClearColor(0x000000)
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
+        camera.position.set(0, 0, 0)
+
+        const scene = new THREE.Scene();
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load('./assets/img/home.jpg');
+
+        const basicMaterial = new THREE.MeshBasicMaterial({ map: texture });
+        basicMaterial.side = THREE.DoubleSide;
+
+        const sphereGeometry = new THREE.SphereGeometry(2, 100, 100);
+        const sphereMesh = new THREE.Mesh(sphereGeometry, basicMaterial);
+        scene.add(sphereMesh);
+
+        // 轨道控制器
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.addEventListener("change", render);
+        controls.minDistance = 1;
+        controls.maxDistance = 2;
+        controls.enablePan = true; 
+        // controls.maxPolarAngle = Math.PI / 1.5
+        // controls.minPolarAngle = Math.PI / 4
+        // controls.update(); 
+        controls.target.copy(sphereMesh.position);
+
+
+        function render() {
+            renderer.render(scene, camera)
+        }
+
+        function animate() {
+            controls.update()
+            render()
+            requestAnimationFrame(animate)
+        }
+        animate()
+
+        document.body.appendChild(renderer.domElement)
+        
+    </script>
+</html>

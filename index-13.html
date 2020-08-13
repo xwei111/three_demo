@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>轨道控制器</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            canvas {
+                margin-right: 20px;
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        
+    </body>
+    <script src="./three.min.js"></script>
+    <script src="./assets/js/OrbitControls.js"></script>
+    <script>
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(800, 600)
+        renderer.setClearColor(0x000000)
+
+        const camera = new THREE.PerspectiveCamera(45, 4 / 3, 0.1, 10000)
+        camera.position.set(1, -5, 5)
+        camera.lookAt(new THREE.Vector3(0, 0, 0))
+
+        const scene = new THREE.Scene();
+        scene.add(new THREE.AxisHelper(1000));
+
+        const basicMaterial = new THREE.MeshBasicMaterial({ color: 0xf7f7f7 });
+        const material = new THREE.MeshNormalMaterial();
+
+        const planeGeometry = new THREE.PlaneGeometry(8, 6);
+        const planeMesh = new THREE.Mesh(planeGeometry, basicMaterial)
+        scene.add(planeMesh)
+
+        const cubeGeometry = new THREE.CubeGeometry(1, 1, 1);
+        const cubeMesh = new THREE.Mesh(cubeGeometry, material);
+        cubeMesh.position.z = 0.5;
+        scene.add(cubeMesh);
+
+        renderer.render(scene, camera)
+
+        // 轨道控制器
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.addEventListener("change", render);
+        controls.minDistance = 5;
+        controls.maxDistance = 40;
+        controls.enablePan = true; 
+        controls.autoRotate = true;
+        controls.enableKeys = true;
+
+        // controls.target.copy(planeMesh.position);
+        // controls.target = new THREE.Vector3(0, 0, 20)
+
+        function render() {
+            renderer.render(scene, camera)
+        }
+
+        function animate() {
+            // cubeMesh.rotation.x += 0.01
+            controls.update()
+            render()
+            requestAnimationFrame(animate)
+        }
+
+        // animate()
+
+        document.body.appendChild(renderer.domElement)
+        
+    </script>
+</html>

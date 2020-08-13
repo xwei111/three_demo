@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>物品展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+</body>
+<script src="./three.min.js"></script>
+<script src="./assets/js/OBJLoader.js"></script>
+<script src="./assets/js/MTLLoader.js"></script>
+<script src="./assets/js/OrbitControls.js"></script>
+<script>
+
+    const createRenderer = () => {
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        renderer.setClearColor(0x000000)
+        document.body.appendChild(renderer.domElement)
+        return renderer
+    }
+
+    const createCamera = (fov, aspect, near, far, x, y, z) => {
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+        camera.position.set(x, y, z)
+        return camera
+    }
+
+    const camera = createCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000, 0, 0, 20)
+
+    const renderer = createRenderer()
+    const scene = new THREE.Scene()
+    const light = new THREE.PointLight(0xcccccc);
+    light.position.set(0, 10, 5);
+    scene.add(light);
+
+    let mesh;
+    const basePath = './assets/models/';
+    new THREE.MTLLoader()
+        .setPath(basePath)
+        .load('/car.mtl', function (materials) {
+            materials.preload();
+            new THREE.OBJLoader()
+                .setMaterials(materials)
+                .setPath(basePath)
+                .load('/car.obj', function (obj) {
+                    mesh = obj
+                    obj.position.y = 0;
+                    mesh.position.y = -2
+                    mesh.rotation.y = Math.PI / 2
+                    obj.children.length > 0 && scene.add(obj)
+                })
+        })
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enablePan = true;
+
+    function render() {
+        renderer.render(scene, camera)
+    }
+
+    function animate() {
+        render()
+        requestAnimationFrame(animate)
+    }
+
+    animate()
+
+</script>
+
+</html>
