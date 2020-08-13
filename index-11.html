@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>ASCII</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            canvas {
+                margin-right: 20px;
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        
+    </body>
+    <script src="./three.min.js"></script>
+    <script src='./assets/js/AsciiEffect.js'></script>
+    <script src="./assets/js/OBJLoader.js"></script>
+    <script>
+
+        const createCamera = (fov, aspect, near, far, x, y, z) => {
+            const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+            camera.position.set(x, y, z)
+            return camera
+        }
+
+        const camera = createCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000, 0, -3, 40)
+        camera.lookAt(new THREE.Vector3(0, 0, 0))
+
+        const scene = new THREE.Scene();
+        const geometry = new THREE.SphereGeometry(3, 36, 12)
+        const material = new THREE.MeshNormalMaterial();
+        const sphereMesh = new THREE.Mesh(geometry, material)
+        sphereMesh.position.x = -14
+        scene.add(sphereMesh)
+
+        let mesh;
+        const loader = new THREE.OBJLoader();
+        loader.load('./assets/models/car.obj', function (obj) {
+            obj.traverse(function (child) {
+                if (child instanceof THREE.Mesh) {
+                    child.material = new THREE.MeshLambertMaterial({ color: '#ff0', emissive: '#f00' });
+                    child.material.side = THREE.DoubleSide; // 双面绘制
+                }
+            });
+            mesh = obj
+            mesh.position.y = -2
+            scene.add(obj)
+        })
+
+        // render
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        const effect = new THREE.AsciiEffect( renderer, ' .:-+*=%@#', { invert: true } );
+        effect.setSize(window.innerWidth, window.innerHeight);
+        effect.domElement.style.color='#fff';
+        effect.domElement.style.backgroundColor='black';
+        effect.render(scene, camera)
+        document.body.appendChild(effect.domElement);
+
+        
+        let speed = 0.01;
+        function animate() {
+            speed += 0.01
+            sphereMesh.position.y -= speed
+            if(sphereMesh.position.y < -10) {
+                speed = speed * -1
+            }
+            if(mesh) {
+                mesh.rotation.y -= 0.01
+                effect.render(scene, camera)
+            }
+            requestAnimationFrame(animate)
+        }
+        animate()
+        
+    </script>
+</html>
