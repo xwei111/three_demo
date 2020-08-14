@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>简化测试dat.gui && 性能监测stats</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            canvas {
+                margin-right: 20px;
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        
+    </body>
+    <script src="./three.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/stats.js/10/Stats.min.js"></script>
+    <script>
+        const createRenderer = ()=> {
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(800, 600)
+            renderer.setClearColor(0x000000)
+            document.body.appendChild(renderer.domElement)
+            return renderer
+        }
+
+        const createCamera = (fov, aspect, near, far, x, y, z) => {
+            const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+            camera.position.set(x, y, z)
+            return camera
+        }
+
+        const createGeometry = (scene, geometry, material) => {
+            const mesh = new THREE.Mesh(geometry, material)
+            scene.add(mesh)
+            return mesh
+        }
+
+        const camera = createCamera(45, 4 / 3, 0.1, 1000, 1, -5, 5)
+        camera.lookAt(new THREE.Vector3(0, 0, 0))
+
+        const scene = new THREE.Scene();
+        const material = new THREE.MeshNormalMaterial();
+        
+        // 长方体
+        const cubeGeometry = new THREE.CubeGeometry(1, 1, 1);
+        const cubeMesh = createGeometry(scene, cubeGeometry, material)
+
+        const renderer = createRenderer();
+
+        let rotations = {
+            x: 0.01,
+            y: 0.01
+        }
+
+        //设置取值范围
+        const gui = new dat.GUI();
+        gui.add(rotations, 'x', 0, 0.5);
+        gui.add(rotations, 'y', 0, 0.5);
+
+        // 动画性能
+        const stats = new Stats();
+        document.body.appendChild(stats.domElement);
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.right = '0px';
+        stats.domElement.style.top = '100px';
+
+        function animate() {
+            stats.begin()
+            cubeMesh.rotation.x += rotations.x
+            cubeMesh.rotation.y += rotations.y
+            renderer.render(scene, camera)
+            stats.end()
+            requestAnimationFrame(animate)
+        }
+        
+        animate()
+
+    </script>
+</html>
