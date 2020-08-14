@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>交互-射线拾取器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+</body>
+<script src="./three.min.js"></script>
+<script src="./assets/js/OrbitControls.js"></script>
+<script>
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setClearColor(0x000000)
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
+    camera.position.set(1, -5, 60)
+    camera.lookAt(new THREE.Vector3(0, 0, 0))
+
+    const scene = new THREE.Scene();
+    // scene.overrideMaterial = new THREE.MeshBasicMaterial({wireframe:true });
+    // 几何体
+    const geometrys = [
+        new THREE.CubeGeometry(1.5, 1.5, 1.5),
+        new THREE.SphereGeometry(0.8, 36, 12),
+        new THREE.TorusKnotGeometry(0.6, 0.2, 80, 12),
+        new THREE.TetrahedronGeometry(0.8)
+    ]
+    // 随机色
+    function getColor(){
+        const r = Math.floor(Math.random()*256);
+        const g = Math.floor(Math.random()*256);
+        const b = Math.floor(Math.random()*256);
+        const color = `rgba(${r},${g},${b}, 1)`;
+        return color;
+    }
+
+    for(let i = 0; i < 1000; i++) {
+        const basicMaterial = new THREE.MeshBasicMaterial({ color: getColor() });
+        const cubeMesh = new THREE.Mesh(geometrys[i % 5], basicMaterial);
+        cubeMesh.position.x = THREE.Math.randFloatSpread(100);
+        cubeMesh.position.y = THREE.Math.randFloatSpread(80);
+        cubeMesh.position.z = THREE.Math.randFloatSpread(60);
+        cubeMesh.rotation.x = Math.random()
+        cubeMesh.rotation.y = Math.random()
+        cubeMesh.rotation.z = Math.random()
+        scene.add(cubeMesh);
+    }
+    // 拾取器
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    // 划过
+    function selfMove(event) {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        var intersects = raycaster.intersectObjects(scene.children);
+        if(intersects && intersects.length) {
+            intersects[0].object.material.color.set(0xff0000);
+        }
+        renderer.render(scene, camera);
+    }
+    // 点击
+    function selfClick(event) {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        var intersects = raycaster.intersectObjects(scene.children);
+        if(intersects && intersects.length) {
+            drop(intersects[0].object, intersects[0].object.id) // 如果想要改变一条线上的元素，遍历intersects
+        }
+    }
+
+    function drop(mesh, id) {
+        let num = 0.01;
+        function animate() {
+            num += 0.06
+            mesh.position.y -= num
+            if(mesh.position.y < -500) {
+                cancelAnimationFrame(id)
+                return
+            }
+            renderer.render(scene, camera);
+            id = requestAnimationFrame(animate)
+        }
+        animate()
+    }
+
+    window.addEventListener( 'mousemove', selfMove, false );
+    window.addEventListener( 'click', selfClick, false );
+    // 轨道控制器
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enablePan = true;
+
+    renderer.render(scene, camera);
+    document.body.appendChild(renderer.domElement)
+
+</script>
+
+</html>
