@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>音频-可视化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body,html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        #mark {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+        }
+        #start {
+            width: 200px;
+            height: 80px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            line-height: 80px;
+            text-align: center;
+            cursor: pointer;
+            background: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mark">
+        <div id="start">Let's Go ！</div>
+    </div>
+</body>
+<script src="./three.min.js"></script>
+<script src='./assets/js/OrbitControls.js'></script>
+<script>
+    let analyser;
+    // renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setClearColor(0x000000)
+    // camera
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
+    camera.position.set(0, 0, 2400)
+    // scene
+    const scene = new THREE.Scene();
+
+    var group = new THREE.Group();
+    let N = 128; //控制音频分析器返回频率数据数量
+    for (let i = 0; i < N / 2; i++) {
+        var box = new THREE.BoxGeometry(10, 100, 10); //创建一个立方体几何对象
+        var material = new THREE.MeshBasicMaterial({
+            color: 0xffffff
+        }); //材质对象
+        var mesh = new THREE.Mesh(box, material); //网格模型对象
+        // 长方体间隔20，整体居中
+        mesh.position.set(20 * i - N / 2 * 10, 0, 0)
+        group.add(mesh)
+    }
+    scene.add(group)
+
+    document.body.appendChild(renderer.domElement)
+
+    const listener = new THREE.AudioListener();
+    const audio = new THREE.Audio(listener);
+    const audioLoader = new THREE.AudioLoader();
+
+    function animate() {
+        renderer.render(scene, camera)
+        requestAnimationFrame(animate)
+        if (analyser) {
+            // 获得频率数据N个
+            var arr = analyser.getFrequencyData();
+            // console.log(arr);
+            // 遍历组对象，每个网格子对象设置一个对应的频率数据
+            group.children.forEach((elem, index) => {
+                elem.scale.y = arr[index] / 80
+                elem.material.color.r = arr[index] / 200;
+            });
+        }
+    }
+
+    const start = document.getElementById('start')
+    const mark = document.getElementById('mark')
+
+    start.addEventListener('click', () => {
+        start.innerHTML = 'loading...'
+        audioLoader.load('./assets/music/girl.mp3', function (AudioBuffer) {
+            audio.setBuffer(AudioBuffer);
+            audio.setLoop(true);
+            audio.setVolume(1);
+            analyser = new THREE.AudioAnalyser(audio);
+            audio.play();
+            animate()
+            mark.style.display = 'none'
+        });
+    })
+
+</script>
+
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>音频-位置</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #mark {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        #start {
+            width: 200px;
+            height: 80px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            line-height: 80px;
+            text-align: center;
+            cursor: pointer;
+            background: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mark">
+        <div id="start">Let's Go ！</div>
+    </div>
+</body>
+<script src="./three.min.js"></script>
+<script src='./assets/js/OrbitControls.js'></script>
+<script>
+    // renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setClearColor(0x000000)
+    // camera
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
+    camera.position.set(0, 0, 10)
+    // mesh 目标物
+    const cubeMaterial = new THREE.MeshNormalMaterial();
+    const cubeGeometry = new THREE.CubeGeometry(1, 1, 1);
+    const cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial)
+    // scene
+    const scene = new THREE.Scene();
+    scene.add(cubeMesh)
+    
+    // 轨道控制器
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.addEventListener('change', render)
+    controls.enablePan = true;
+
+    function render() { renderer.render(scene, camera) }
+
+    document.body.appendChild(renderer.domElement)
+
+    // 创建一个监听者
+    const listener = new THREE.AudioListener();
+    // 监听者绑定到相机
+    camera.add(listener)
+    // 创建一个非位置音频对象  用来控制播放
+    const audio = new THREE.PositionalAudio(listener);
+    // 将音频加入目标物，随着目标物位置的变化声音也会发生变化
+    cubeMesh.add(audio)
+    // 创建一个音频加载器对象
+    const audioLoader = new THREE.AudioLoader();
+
+    const start = document.getElementById('start')
+    const mark = document.getElementById('mark')
+
+    start.addEventListener('click', () => {
+        start.innerHTML = 'loading...'
+        audioLoader.load('./assets/music/girl.mp3', function (AudioBuffer) {
+            audio.setBuffer(AudioBuffer); // 音频缓冲区对象关联到音频对象audio
+            audio.setLoop(true); //是否循环
+            audio.setVolume(1); //音量
+            // audio.play(); //播放，谷歌安全策略不会主动触发播放，改为手动播放
+            analyser = new THREE.AudioAnalyser(audio);
+            audio.play();
+            render()
+            mark.style.display = 'none'
+        });
+    })
+
+</script>
+
+</html>
