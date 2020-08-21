@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>奔跑的骏马</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+
+</body>
+<script src="./three.min.js"></script>
+<script src='./assets/js/OrbitControls.js'></script>
+<script src="./assets/js/GLTFLoader.js"></script>
+<script>
+    // renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setClearColor(0xf7f7f7)
+    // camera
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000)
+    camera.position.set(100, 100, 600)
+    camera.lookAt(new THREE.Vector3(0, 0, 0))
+    // scene
+    const scene = new THREE.Scene()
+    // light
+    var light1 = new THREE.DirectionalLight( 0xefefff, 3 );
+    light1.position.set( 3, 3, 3 );
+    scene.add( light1 );
+    var light2 = new THREE.DirectionalLight( 0xefefff, 3 );
+    light2.position.set( -3, -3, -3 );
+    scene.add( light2 );
+
+    let mesh, mixer;
+    // loader 
+    const loader = new THREE.GLTFLoader()
+    loader.load('./assets/models/Horse.glb', function(gltf) {
+        mesh = gltf.scene.children[0]
+        mesh.position.y = -100
+        mesh.material.side = THREE.DoubleSide
+        scene.add(mesh)
+        mixer = new THREE.AnimationMixer(mesh)
+        mixer.clipAction(gltf.animations[0]).play()
+    })
+    // 轨道控制器
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enablePan = true;
+
+    const clock = new THREE.Clock();
+
+    function animation() {
+        renderer.render(scene, camera)
+        requestAnimationFrame(animation)
+        mixer && mixer.update(clock.getDelta())
+    }
+    animation()
+
+    document.body.appendChild(renderer.domElement)
+
+</script>
+
+</html>
