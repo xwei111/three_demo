@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>粒子模型转化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #mark {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 1);
+            top: 0;
+            left: 0;
+            z-index: 99;
+        }
+
+        #loading {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+        }
+
+        .btnBox {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+        }
+
+        .btn {
+            border-radius: 2px;
+            cursor: pointer;
+            float: left;
+            padding: 3px 10px;
+            color: rgba(127, 255, 255, 0.75);
+            border: 1px solid rgba(127, 255, 255, 0.75);
+            margin: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mark">
+        <div id="loading">loading...</div>
+    </div>
+    <div class="btnBox">
+        <p class="btn" id="cube">cube</p>
+        <p class="btn" id="sphere">sphere</p>
+        <p class="btn" id="cylinder">cylinder</p>
+        <p class="btn" id="TorusKnot">TorusKnot</p>
+        <p class="btn" id="car">car</p>
+        <p class="btn" id="girl">girl</p>
+    </div>
+</body>
+<script src="./three.min.js"></script>
+<script src="./assets/js/OBJLoader.js"></script>
+<script src='./assets/js/OrbitControls.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/17.1.1/Tween.min.js"></script>
+<script>
+
+    const sphereGeometry = new THREE.SphereGeometry(10, 72, 36)
+    const cubeGeometry = new THREE.CubeGeometry(10, 10, 10, 20, 20, 20);
+    const cylinderGeometry = new THREE.CylinderGeometry(8, 8, 16, 80, 80)
+    const TorusKnotGeometry = new THREE.TorusKnotGeometry(10, 3, 200, 60)
+
+    let geoVecs;
+    const objs = {
+        cube: {
+            geometry: cubeGeometry,
+            color: { r: 1, g: 0, b: 0 }
+        },
+        sphere: {
+            geometry: sphereGeometry,
+            color: { r: 1, g: 1, b: 0 }
+        },
+        cylinder: {
+            geometry: cylinderGeometry,
+            color: { r: 1, g: 1, b: 1 }
+        },
+        TorusKnot: {
+            geometry: TorusKnotGeometry,
+            color: { r: 0, g: 1, b: 1 }
+        },
+        car: {
+            model: './assets/models/car.obj',
+            scale: { x: 1.4, y: 1.4, z: 1.4 },
+            rotation: { x: 0, y: Math.PI / 2, z: 0 },
+            color: { r: 1, g: 0, b: 1 }
+        },
+        girl: {
+            model: './assets/models/walk.obj',
+            scale: { x: 0.1, y: 0.1, z: 0.1 },
+            rotation: { x: - Math.PI / 2, y: 0, z: 0 },
+            color: { r: 1, g: 1, b: 0 }
+        }
+    }
+    const loader = new THREE.OBJLoader();
+
+    const createRenderer = () => {
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        renderer.setClearColor(0x000000)
+        document.body.appendChild(renderer.domElement)
+        return renderer
+    }
+
+    const createCamera = (fov, aspect, near, far, x, y, z) => {
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+        camera.position.set(x, y, z)
+        return camera
+    }
+    // 相机
+    const camera = createCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000, 0, 0, 50)
+    // 渲染器
+    const renderer = createRenderer()
+    const scene = new THREE.Scene()
+    // 轨道控制器
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enablePan = true;
+    // 粒子系统
+    const geometry = new THREE.Geometry();
+    let colors = []
+    for (let i = 0; i < 80000; i++) {
+        let point = new THREE.Vector3();
+        point.x = THREE.Math.randFloatSpread(1000);
+        point.y = THREE.Math.randFloatSpread(1000);
+        point.z = THREE.Math.randFloatSpread(1000);
+        geometry.vertices.push(point);
+        colors.push(new THREE.Color(Math.random(), Math.random(), Math.random()))
+    }
+    geometry.colors = colors
+    const material = new THREE.PointsMaterial({ size: 0.1, vertexColors: THREE.VertexColors });
+    let points = new THREE.Points(geometry, material);
+    scene.add(points)
+
+    // 加载模型
+    const objLoader = (objs) => {
+        return objs.map(obj => {
+            return new Promise((resolve, reject) => {
+                if (obj[1]['model']) {
+                    loader.load(obj[1]['model'], function (e) {
+                        const geometry = new THREE.Geometry().fromBufferGeometry(e.children[0].geometry)
+                        obj[1].scale && geometry.scale(obj[1].scale.x, obj[1].scale.y, obj[1].scale.z)
+                        if (obj[1].rotation) {
+                            obj[1].rotation.x && geometry.rotateX(obj[1].rotation.x)
+                            obj[1].rotation.y && geometry.rotateY(obj[1].rotation.y)
+                            obj[1].rotation.z && geometry.rotateZ(obj[1].rotation.z)
+                        }
+
+                        resolve({ name: obj[0], vertices: geometry.vertices, color: obj[1].color })
+                    })
+                } else {
+                    resolve({ name: obj[0], vertices: obj[1]['geometry'].vertices, color: obj[1].color })
+                }
+            })
+        })
+
+    }
+
+    Promise.all(objLoader(Object.entries(objs))).then(res => {
+        document.getElementById('mark').style.display = 'none'
+        geoVecs = res
+    })
+
+    let name;
+    // 改变点位置
+    function change(e) {
+        const text = e.target.innerText;
+        if (name == text) return
+        name = text
+        const obj = geoVecs.find(v => v.name == text) || []
+        const { vertices, rotation, position, color } = obj
+        geometry.vertices.forEach(function (e, i, arr) {
+            if(color) {
+                geometry.colors[i].r = color.r
+                geometry.colors[i].g = color.g
+                geometry.colors[i].b = color.b
+            }
+            let len = vertices.length;
+            let o = vertices[i % len]
+            new TWEEN.Tween(e).to({
+                x: o.x,
+                y: o.y,
+                z: o.z
+            }, 1000).easing(TWEEN.Easing.Quadratic.InOut).start();
+        })
+    }
+
+    const btns = document.getElementsByClassName('btn')
+    Array.from(btns).forEach(btn => btn.addEventListener('click', change))
+
+    function render() {
+        geometry.verticesNeedUpdate = true;
+        geometry.colorsNeedUpdate = true;
+        renderer.render(scene, camera);
+    }
+
+    function animate(time) {
+        TWEEN.update();
+        requestAnimationFrame(animate);
+        render();
+    }
+    animate()
+
+</script>
+
+</html>
