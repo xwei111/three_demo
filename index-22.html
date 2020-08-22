@@ -141,6 +141,7 @@
         point.y = THREE.Math.randFloatSpread(1000);
         point.z = THREE.Math.randFloatSpread(1000);
         geometry.vertices.push(point);
+        // 自定义颜色
         colors.push(new THREE.Color(Math.random(), Math.random(), Math.random()))
     }
     geometry.colors = colors
@@ -192,7 +193,7 @@
                 geometry.colors[i].b = color.b
             }
             let len = vertices.length;
-            let o = vertices[i % len]
+            let o = vertices[i % len] // 多余点重复赋值
             new TWEEN.Tween(e).to({
                 x: o.x,
                 y: o.y,
@@ -205,8 +206,8 @@
     Array.from(btns).forEach(btn => btn.addEventListener('click', change))
 
     function render() {
-        geometry.verticesNeedUpdate = true;
-        geometry.colorsNeedUpdate = true;
+        geometry.verticesNeedUpdate = true; // 点位置更新
+        geometry.colorsNeedUpdate = true; // 颜色更新
         renderer.render(scene, camera);
     }
 
