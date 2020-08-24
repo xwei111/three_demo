@@ -71,6 +71,7 @@
 <script src="./assets/js/OBJLoader.js"></script>
 <script src='./assets/js/OrbitControls.js'></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/17.1.1/Tween.min.js"></script>
+<script src="assets/js/selfUtils/resize.js"></script>
 <script>
 
     const sphereGeometry = new THREE.SphereGeometry(10, 72, 36)
@@ -217,6 +218,8 @@
         render();
     }
     animate()
+
+    window.addEventListener( 'resize', ()=>onWindowResize(camera, renderer), false );
 
 </script>
 

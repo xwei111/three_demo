@@ -21,6 +21,7 @@
 
 </body>
 <script src="./three.min.js"></script>
+<script src="assets/js/selfUtils/resize.js"></script>
 <script>
     const createRenderer = () => {
         const renderer = new THREE.WebGLRenderer();
@@ -89,6 +90,8 @@
     }
 
     animate()
+
+    window.addEventListener( 'resize', ()=>onWindowResize(camera, renderer), false );
 </script>
 
 </html>

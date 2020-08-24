@@ -25,6 +25,7 @@
 <script src="./three.min.js"></script>
 <script src='./assets/js/OrbitControls.js'></script>
 <script src="./assets/js/GLTFLoader.js"></script>
+<script src="assets/js/selfUtils/resize.js"></script>
 <script>
     // renderer
     const renderer = new THREE.WebGLRenderer();
@@ -69,6 +70,8 @@
     animation()
 
     document.body.appendChild(renderer.domElement)
+
+    window.addEventListener( 'resize', ()=>onWindowResize(camera, renderer), false );
 
 </script>
 

@@ -36,6 +36,7 @@
 <script src="./assets/js/OBJLoader.js"></script>
 <script src="./assets/js/MTLLoader.js"></script>
 <script src="./assets/js/OrbitControls.js"></script>
+<script src="assets/js/selfUtils/resize.js"></script>
 <script>
 
     const createRenderer = () => {
@@ -94,6 +95,8 @@
     }
 
     animate()
+
+    window.addEventListener( 'resize', ()=>onWindowResize(camera, renderer), false );
 
 </script>
 
